@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OrderProcessingSystem.Shared.Constants;
 using OrderProcessingSystemApplication.ProductService;
@@ -7,8 +8,8 @@ using System.Reflection;
 
 namespace OrderProcessingSystem.Controllers
 {
+    //[Authorize] //currently diabled
     [ApiController]
-    [Route("api/[controller]")]
     public class ProductController : ControllerBase
     {
         private readonly IProductService _productService;

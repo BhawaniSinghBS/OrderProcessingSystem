@@ -1,8 +1,13 @@
-﻿namespace OrderProcessingSystem.Shared.Models.DTOs
+﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
+
+namespace OrderProcessingSystem.Shared.Models.DTOs
 {
     public class LoginDTO
     {
-        public string Username { get; set; }
+        [EmailAddress]
+        public string Email { get; set; }
+        [PasswordPropertyText]
         public string Password { get; set; }
     }
 }

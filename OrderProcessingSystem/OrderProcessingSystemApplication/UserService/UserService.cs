@@ -17,11 +17,11 @@ namespace OrderProcessingSystemApplication.UserService
         }
 
         // Authenticate user using UserManager
-        public async Task<UserDTO> AuthenticateUserAsync(string username, string password)
+        public async Task<UserDTO> AuthenticateUserAsync(string email, string password)
         {
             try
             {
-                UserEntity userDBModel = await _userRepo.AuthenticateUserAsync(username, password);
+                UserEntity userDBModel = await _userRepo.AuthenticateUserAsync(email, password);
                 UserDTO usreModel = userDBModel.Adapt<UserDTO>();
                 return usreModel;
             }

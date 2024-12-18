@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OrderProcessingSystem.Shared.Constants;
 using OrderProcessingSystem.Shared.Models.DTOs;
@@ -7,7 +8,7 @@ using System.Reflection;
 
 namespace OrderProcessingSystem.Server.Controllers
 {
-    [Route("api/[controller]")]
+    //[Authorize] //currently diabled
     [ApiController]
     public class OrderController : ControllerBase
     {

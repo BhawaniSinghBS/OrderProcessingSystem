@@ -1,9 +1,33 @@
 ﻿@page "/"
 
-<PageTitle>Index</PageTitle>
+<div class="page-container" >
+    <div class="login-container">
+        <h3 class="fancy-header">Welcome Back!</h3>
+        <p class="subtitle">Please login to continue</p>
 
-<h1>Hello, world!</h1>
+        <EditForm Model="LoginModel" OnValidSubmit="LoginUser">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
 
-Welcome to your new app.
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <InputText @bind-Value="LoginModel.Email" id="email" type="email" class="form-control" placeholder="Enter your email" />
+            </div>
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <div class="password-container">
+                    <InputText @bind-Value="LoginModel.Password" id="password" type="@PasswordFieldType" class="form-control" placeholder="Enter your password" />
+                    <button type="button" class="toggle-password" @onclick="TogglePasswordVisibility">@PasswordButtonText</button>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-submit">Login</button>
+        </EditForm>
+
+        @if (!string.IsNullOrEmpty(LoginError))
+        {
+            <p class="error-message">@LoginError</p>
+        }
+    </div>
+</div>

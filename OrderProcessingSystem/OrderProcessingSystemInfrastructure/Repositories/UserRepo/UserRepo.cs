@@ -20,11 +20,11 @@ namespace OrderProcessingSystemInfrastructure.Repositories.AuthenticateUserRepo
         }
 
         // Authenticate user using UserManager
-        public async Task<UserEntity> AuthenticateUserAsync(string username, string password)
+        public async Task<UserEntity> AuthenticateUserAsync(string email, string password)
         {
             try
             {
-                var user = await _userManager.FindByNameAsync(username);
+                var user = await _userManager.FindByEmailAsync(email);
                 if (user != null && await _userManager.CheckPasswordAsync(user, password))
                 {
                     return user;

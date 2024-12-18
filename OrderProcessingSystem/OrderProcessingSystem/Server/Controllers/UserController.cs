@@ -3,13 +3,12 @@ using OrderProcessingSystem.Shared.Constants;
 using OrderProcessingSystem.Shared.Models.DTOs;
 using OrderProcessingSystemApplication.OrderService;
 using OrderProcessingSystemApplication.UserService;
-using OrderProcessingSystemInfrastructure.DataBase.Entities;
 using Serilog;
 using System.Reflection;
 
 namespace OrderProcessingSystem.Server.Controllers
 {
-    [Route("api/[Controller]")]
+    //[Authorize] //currently diabled
     [ApiController]
     public class UserController : ControllerBase
     {
@@ -28,11 +27,11 @@ namespace OrderProcessingSystem.Server.Controllers
         {
             try
             {
-                if (login == null || string.IsNullOrWhiteSpace(login.Username) || string.IsNullOrWhiteSpace(login.Password))
+                if (login == null || string.IsNullOrWhiteSpace(login.Email) || string.IsNullOrWhiteSpace(login.Password))
                 {
                     return BadRequest("Failed to authenticate user,Invalid parameters");
                 }
-                UserDTO user = await _userService.AuthenticateUserAsync(login.Username, login.Password);
+                UserDTO user = await _userService.AuthenticateUserAsync(login.Email, login.Password);
                 user.IsAnyUnfulFilledOrder = await _orderService.HasUnfulfilledOrdersAsync(user.Id);
                 if (user == null) return Unauthorized("Invalid credentials");
                 return Ok(user);
