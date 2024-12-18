@@ -7,6 +7,6 @@
         public decimal Price { get; set; }
 
         // Navigation property: Many-to-Many relationship through the join entity
-        public ICollection<OrderProductEntity> OrderProducts { get; set; } = new List<OrderProductEntity>();
+        public virtual ICollection<OrderProductEntity> OrderProducts { get; set; } = new List<OrderProductEntity>();
     }
 }

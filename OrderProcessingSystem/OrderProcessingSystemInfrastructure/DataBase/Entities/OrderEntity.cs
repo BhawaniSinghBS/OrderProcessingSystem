@@ -7,8 +7,8 @@
         public bool IsFulfilled { get; set; } = false;
 
         // Navigation properties
-        public UserEntity Customer { get; set; }
-        public ICollection<OrderProductEntity> OrderProducts { get; set; } = new List<OrderProductEntity>();
+        public virtual UserEntity Customer { get; set; }
+        public virtual ICollection<OrderProductEntity> OrderProducts { get; set; } = new List<OrderProductEntity>();
 
         // Calculated Total Price
         public decimal TotalPrice => OrderProducts.Sum(op => op.TotalPrice);

@@ -6,7 +6,7 @@ namespace OrderProcessingSystem.Client.Services
 {
     public static class UserContext
     {
-        private static UserDTO _user;
+        private static UserDTO _user = new();
         public static event Action<UserDTO> OnUserChanged;
 
         // Property to access the current user

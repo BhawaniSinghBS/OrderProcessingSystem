@@ -8,7 +8,7 @@ using System.Net.Http.Json;
 
 namespace OrderProcessingSystem.Client.Pages
 {
-    public partial class FetchData
+    public partial class Orders
     {
         [Inject] public HttpClient _Http { get; set; }
         [Inject] public IJSRuntime _JSRuntime { get; set; }

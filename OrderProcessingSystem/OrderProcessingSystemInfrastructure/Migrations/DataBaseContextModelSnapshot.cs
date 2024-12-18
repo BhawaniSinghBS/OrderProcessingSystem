@@ -34,6 +34,10 @@ namespace OrderProcessingSystemInfrastructure.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Discriminator")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Name")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
@@ -50,6 +54,8 @@ namespace OrderProcessingSystemInfrastructure.Migrations
                         .HasFilter("[NormalizedName] IS NOT NULL");
 
                     b.ToTable("AspNetRoles", (string)null);
+
+                    b.HasDiscriminator<string>("Discriminator").HasValue("IdentityRole<int>");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
@@ -98,6 +104,50 @@ namespace OrderProcessingSystemInfrastructure.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("AspNetUserClaims", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            ClaimType = "IsCustomer",
+                            ClaimValue = "true",
+                            UserId = 1
+                        },
+                        new
+                        {
+                            Id = 2,
+                            ClaimType = "IsCustomer",
+                            ClaimValue = "true",
+                            UserId = 2
+                        },
+                        new
+                        {
+                            Id = 3,
+                            ClaimType = "IsCustomer",
+                            ClaimValue = "false",
+                            UserId = 3
+                        },
+                        new
+                        {
+                            Id = 4,
+                            ClaimType = "CanPlaceOrder",
+                            ClaimValue = "true",
+                            UserId = 1
+                        },
+                        new
+                        {
+                            Id = 5,
+                            ClaimType = "CanPlaceOrder",
+                            ClaimValue = "true",
+                            UserId = 2
+                        },
+                        new
+                        {
+                            Id = 6,
+                            ClaimType = "CanPlaceOrder",
+                            ClaimValue = "false",
+                            UserId = 3
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<int>", b =>
@@ -129,11 +179,17 @@ namespace OrderProcessingSystemInfrastructure.Migrations
                     b.Property<int>("RoleId")
                         .HasColumnType("int");
 
+                    b.Property<string>("Discriminator")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("UserId", "RoleId");
 
                     b.HasIndex("RoleId");
 
                     b.ToTable("AspNetUserRoles", (string)null);
+
+                    b.HasDiscriminator<string>("Discriminator").HasValue("IdentityUserRole<int>");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<int>", b =>
@@ -349,12 +405,17 @@ namespace OrderProcessingSystemInfrastructure.Migrations
                         {
                             Id = 1,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "e3bc8a26-c7e4-4177-8f58-6375aa6c91b3",
+                            ConcurrencyStamp = "e01e3752-108d-4f6e-ba17-33d9940ef474",
                             Email = "customer1@example.com",
-                            EmailConfirmed = false,
+                            EmailConfirmed = true,
                             IsCustomer = true,
-                            LockoutEnabled = false,
-                            PhoneNumberConfirmed = false,
+                            LockoutEnabled = true,
+                            NormalizedEmail = "CUSTOMER1@EXAMPLE.COM",
+                            NormalizedUserName = "CUSTOMER1",
+                            PasswordHash = "AQAAAAEAACcQAAAAEGVS/gtA+FL/CrtqmkLryf4vxrYWt0gqum90Y2DuZ/1Prd5B1EjVgfG8zJcGGaVCAQ==",
+                            PhoneNumber = "1234567890",
+                            PhoneNumberConfirmed = true,
+                            SecurityStamp = "7b6bc0f5-5a89-4841-9182-57fe9de78279",
                             TwoFactorEnabled = false,
                             UserName = "customer1"
                         },
@@ -362,12 +423,17 @@ namespace OrderProcessingSystemInfrastructure.Migrations
                         {
                             Id = 2,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "6792f2c9-c283-412f-a3b7-2bdcb4ff9252",
+                            ConcurrencyStamp = "5496b9be-9da6-434a-bf2c-6311e21c5730",
                             Email = "customer2@example.com",
-                            EmailConfirmed = false,
+                            EmailConfirmed = true,
                             IsCustomer = true,
-                            LockoutEnabled = false,
-                            PhoneNumberConfirmed = false,
+                            LockoutEnabled = true,
+                            NormalizedEmail = "CUSTOMER2@EXAMPLE.COM",
+                            NormalizedUserName = "CUSTOMER2",
+                            PasswordHash = "AQAAAAEAACcQAAAAENVWVw5R3qYJm290GyYrvlRbTsn2CcCnym0jRvVaXcrSlW8HhIjYqxFz5vFiWpkz5w==",
+                            PhoneNumber = "9876543210",
+                            PhoneNumberConfirmed = true,
+                            SecurityStamp = "a02f49a9-c3fb-4fc4-8928-d2bdd0d97af1",
                             TwoFactorEnabled = false,
                             UserName = "customer2"
                         },
@@ -375,14 +441,66 @@ namespace OrderProcessingSystemInfrastructure.Migrations
                         {
                             Id = 3,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "6c916e8f-b1e5-4dd6-b35a-2a455521ae69",
+                            ConcurrencyStamp = "5d123d6d-b4ac-4565-bddc-7165ba678f64",
                             Email = "admin@example.com",
-                            EmailConfirmed = false,
+                            EmailConfirmed = true,
                             IsCustomer = false,
-                            LockoutEnabled = false,
-                            PhoneNumberConfirmed = false,
+                            LockoutEnabled = true,
+                            NormalizedEmail = "ADMIN@EXAMPLE.COM",
+                            NormalizedUserName = "ADMIN1",
+                            PasswordHash = "AQAAAAEAACcQAAAAEL44GwWcHLzrR2D5pT9TzHFxnAfUB4LamyS7ObVxHiCQK+Lp4CM3HsFEB4PTC2k7cA==",
+                            PhoneNumber = "5555555555",
+                            PhoneNumberConfirmed = true,
+                            SecurityStamp = "ee74c308-8352-4e20-a9a9-126dd93bbcb7",
                             TwoFactorEnabled = false,
                             UserName = "admin1"
+                        });
+                });
+
+            modelBuilder.Entity("OrderProcessingSystemInfrastructure.DataBase.Entities.RoleEntity", b =>
+                {
+                    b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityRole<int>");
+
+                    b.HasDiscriminator().HasValue("RoleEntity");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            ConcurrencyStamp = "b713b703-5aa3-43da-87cf-3391bb542970",
+                            Name = "Admin",
+                            NormalizedName = "ADMIN"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            ConcurrencyStamp = "e244fc79-5f8d-48a9-a065-8365fd3a34f7",
+                            Name = "Customer",
+                            NormalizedName = "CUSTOMER"
+                        });
+                });
+
+            modelBuilder.Entity("OrderProcessingSystemInfrastructure.DataBase.Entities.UserRoleEntity", b =>
+                {
+                    b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUserRole<int>");
+
+                    b.HasDiscriminator().HasValue("UserRoleEntity");
+
+                    b.HasData(
+                        new
+                        {
+                            UserId = 1,
+                            RoleId = 2
+                        },
+                        new
+                        {
+                            UserId = 2,
+                            RoleId = 2
+                        },
+                        new
+                        {
+                            UserId = 3,
+                            RoleId = 1
                         });
                 });
 
@@ -398,7 +516,7 @@ namespace OrderProcessingSystemInfrastructure.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<int>", b =>
                 {
                     b.HasOne("OrderProcessingSystemInfrastructure.DataBase.Entities.UserEntity", null)
-                        .WithMany()
+                        .WithMany("UserClaims")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -418,12 +536,6 @@ namespace OrderProcessingSystemInfrastructure.Migrations
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole<int>", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("OrderProcessingSystemInfrastructure.DataBase.Entities.UserEntity", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -467,6 +579,25 @@ namespace OrderProcessingSystemInfrastructure.Migrations
                     b.Navigation("Product");
                 });
 
+            modelBuilder.Entity("OrderProcessingSystemInfrastructure.DataBase.Entities.UserRoleEntity", b =>
+                {
+                    b.HasOne("OrderProcessingSystemInfrastructure.DataBase.Entities.RoleEntity", "Role")
+                        .WithMany("UserRoles")
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("OrderProcessingSystemInfrastructure.DataBase.Entities.UserEntity", "User")
+                        .WithMany("UserRoles")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Role");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("OrderProcessingSystemInfrastructure.DataBase.Entities.OrderEntity", b =>
                 {
                     b.Navigation("OrderProducts");
@@ -480,6 +611,15 @@ namespace OrderProcessingSystemInfrastructure.Migrations
             modelBuilder.Entity("OrderProcessingSystemInfrastructure.DataBase.Entities.UserEntity", b =>
                 {
                     b.Navigation("Orders");
+
+                    b.Navigation("UserClaims");
+
+                    b.Navigation("UserRoles");
+                });
+
+            modelBuilder.Entity("OrderProcessingSystemInfrastructure.DataBase.Entities.RoleEntity", b =>
+                {
+                    b.Navigation("UserRoles");
                 });
 #pragma warning restore 612, 618
         }

@@ -12,7 +12,7 @@
         public enum UserRole
         {
             Unknown = 0,
-            User = 10,
+            Customer = 10,
             Admin = 20,
         }
 

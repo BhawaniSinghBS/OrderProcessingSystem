@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace OrderProcessingSystemInfrastructure.Migrations
 {
-    public partial class InitialSeedingBackEnd : Migration
+    public partial class InitialAndBackEnd : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -17,7 +17,8 @@ namespace OrderProcessingSystemInfrastructure.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
-                    ConcurrencyStamp = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    ConcurrencyStamp = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Discriminator = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -132,7 +133,8 @@ namespace OrderProcessingSystemInfrastructure.Migrations
                 columns: table => new
                 {
                     UserId = table.Column<int>(type: "int", nullable: false),
-                    RoleId = table.Column<int>(type: "int", nullable: false)
+                    RoleId = table.Column<int>(type: "int", nullable: false),
+                    Discriminator = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -217,13 +219,22 @@ namespace OrderProcessingSystemInfrastructure.Migrations
                 });
 
             migrationBuilder.InsertData(
+                table: "AspNetRoles",
+                columns: new[] { "Id", "ConcurrencyStamp", "Discriminator", "Name", "NormalizedName" },
+                values: new object[,]
+                {
+                    { 1, "b713b703-5aa3-43da-87cf-3391bb542970", "RoleEntity", "Admin", "ADMIN" },
+                    { 2, "e244fc79-5f8d-48a9-a065-8365fd3a34f7", "RoleEntity", "Customer", "CUSTOMER" }
+                });
+
+            migrationBuilder.InsertData(
                 table: "AspNetUsers",
                 columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "Email", "EmailConfirmed", "IsCustomer", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UserName" },
                 values: new object[,]
                 {
-                    { 1, 0, "e3bc8a26-c7e4-4177-8f58-6375aa6c91b3", "customer1@example.com", false, true, false, null, null, null, null, null, false, null, false, "customer1" },
-                    { 2, 0, "6792f2c9-c283-412f-a3b7-2bdcb4ff9252", "customer2@example.com", false, true, false, null, null, null, null, null, false, null, false, "customer2" },
-                    { 3, 0, "6c916e8f-b1e5-4dd6-b35a-2a455521ae69", "admin@example.com", false, false, false, null, null, null, null, null, false, null, false, "admin1" }
+                    { 1, 0, "e01e3752-108d-4f6e-ba17-33d9940ef474", "customer1@example.com", true, true, true, null, "CUSTOMER1@EXAMPLE.COM", "CUSTOMER1", "AQAAAAEAACcQAAAAEGVS/gtA+FL/CrtqmkLryf4vxrYWt0gqum90Y2DuZ/1Prd5B1EjVgfG8zJcGGaVCAQ==", "1234567890", true, "7b6bc0f5-5a89-4841-9182-57fe9de78279", false, "customer1" },
+                    { 2, 0, "5496b9be-9da6-434a-bf2c-6311e21c5730", "customer2@example.com", true, true, true, null, "CUSTOMER2@EXAMPLE.COM", "CUSTOMER2", "AQAAAAEAACcQAAAAENVWVw5R3qYJm290GyYrvlRbTsn2CcCnym0jRvVaXcrSlW8HhIjYqxFz5vFiWpkz5w==", "9876543210", true, "a02f49a9-c3fb-4fc4-8928-d2bdd0d97af1", false, "customer2" },
+                    { 3, 0, "5d123d6d-b4ac-4565-bddc-7165ba678f64", "admin@example.com", true, false, true, null, "ADMIN@EXAMPLE.COM", "ADMIN1", "AQAAAAEAACcQAAAAEL44GwWcHLzrR2D5pT9TzHFxnAfUB4LamyS7ObVxHiCQK+Lp4CM3HsFEB4PTC2k7cA==", "5555555555", true, "ee74c308-8352-4e20-a9a9-126dd93bbcb7", false, "admin1" }
                 });
 
             migrationBuilder.InsertData(
@@ -237,14 +248,36 @@ namespace OrderProcessingSystemInfrastructure.Migrations
                 });
 
             migrationBuilder.InsertData(
-                table: "Orders",
-                columns: new[] { "Id", "CustomerId", "IsFulfilled" },
-                values: new object[] { 1, 1, true });
+                table: "AspNetUserClaims",
+                columns: new[] { "Id", "ClaimType", "ClaimValue", "UserId" },
+                values: new object[,]
+                {
+                    { 1, "IsCustomer", "true", 1 },
+                    { 2, "IsCustomer", "true", 2 },
+                    { 3, "IsCustomer", "false", 3 },
+                    { 4, "CanPlaceOrder", "true", 1 },
+                    { 5, "CanPlaceOrder", "true", 2 },
+                    { 6, "CanPlaceOrder", "false", 3 }
+                });
+
+            migrationBuilder.InsertData(
+                table: "AspNetUserRoles",
+                columns: new[] { "RoleId", "UserId", "Discriminator" },
+                values: new object[,]
+                {
+                    { 2, 1, "UserRoleEntity" },
+                    { 2, 2, "UserRoleEntity" },
+                    { 1, 3, "UserRoleEntity" }
+                });
 
             migrationBuilder.InsertData(
                 table: "Orders",
                 columns: new[] { "Id", "CustomerId", "IsFulfilled" },
-                values: new object[] { 2, 2, false });
+                values: new object[,]
+                {
+                    { 1, 1, true },
+                    { 2, 2, false }
+                });
 
             migrationBuilder.InsertData(
                 table: "OrderProducts",

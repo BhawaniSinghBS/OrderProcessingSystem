@@ -19,6 +19,7 @@
         public const string AddOrder = "/api/orders";
         public const string UpdateOrder = "api/Order/update";
         public const string DeleteOrder = "api/Order/{id}";
+        public const string GetOrdersByCustomerId = "api/Order/{customerId}";
         #endregion Order
         #region Product
         public const string GetAllProducts = "api/Product/all";

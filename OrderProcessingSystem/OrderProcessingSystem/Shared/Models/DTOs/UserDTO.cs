@@ -6,7 +6,6 @@ namespace OrderProcessingSystem.Shared.Models.DTOs
     public class UserDTO
     {
         public int Id { get; set; }
-        [EmailAddress]
         public string Email { get; set; }
         public string UserName { get; set; }
         public bool IsAuthorised { get; set; } = false;

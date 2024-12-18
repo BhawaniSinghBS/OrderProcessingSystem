@@ -134,6 +134,23 @@ namespace OrderProcessingSystemApplication.OrderService
                 Log.Error(ex, exLocationAndMessage);
                 return false;
             }
+        }
+        public async Task<List<OrderDTO>> GetOrdersByCustomerIdAsync(int customerId)
+        {
+            try
+            {
+                List<OrderEntity> orderEntities = await _orderRepository.GetOrdersByCustomerIdAsync(customerId);
+                List<OrderDTO> customerOrders = orderEntities.Adapt<List<OrderDTO>>();
+                return customerOrders;
+            }
+            catch (Exception ex)
+            {
+                string className = MethodBase.GetCurrentMethod()?.DeclaringType?.Name ?? $"{TextMessages.UnknownClassText}";
+                string methodName = MethodBase.GetCurrentMethod()?.Name ?? $"{TextMessages.UnknownMethodText}";
+                string exLocationAndMessage = $"{TextMessages.ClassNameText} : {className}  -- {TextMessages.FunctionNameText} : {methodName} ---- {ex.Message} ------";
+                Log.Error(ex, exLocationAndMessage);
+                return new ();
+            }
         } 
     }
 }

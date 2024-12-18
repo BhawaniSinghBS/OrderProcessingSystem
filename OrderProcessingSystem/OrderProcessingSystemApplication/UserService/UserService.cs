@@ -1,6 +1,8 @@
 ﻿using Mapster;
 using OrderProcessingSystem.Shared.Constants;
+using OrderProcessingSystem.Shared.Models;
 using OrderProcessingSystem.Shared.Models.DTOs;
+using OrderProcessingSystemApplication.OrderService;
 using OrderProcessingSystemInfrastructure.DataBase.Entities;
 using OrderProcessingSystemInfrastructure.Repositories.AuthenticateUserRepo;
 using Serilog;
@@ -11,9 +13,12 @@ namespace OrderProcessingSystemApplication.UserService
     public class UserService : IUserService
     {
         private readonly IUserRepo _userRepo;
-        public UserService(IUserRepo userRepository)
+        private readonly IOrderService _orderService;
+
+        public UserService(IUserRepo userRepository, IOrderService orderService)
         {
             _userRepo = userRepository;
+            _orderService = orderService;
         }
 
         // Authenticate user using UserManager
@@ -21,8 +26,10 @@ namespace OrderProcessingSystemApplication.UserService
         {
             try
             {
+                password = null;
                 UserEntity userDBModel = await _userRepo.AuthenticateUserAsync(email, password);
                 UserDTO usreModel = userDBModel.Adapt<UserDTO>();
+                usreModel.IsAnyUnfulFilledOrder = await _orderService.HasUnfulfilledOrdersAsync(usreModel.Id);
                 return usreModel;
             }
             catch (Exception ex)
@@ -42,6 +49,8 @@ namespace OrderProcessingSystemApplication.UserService
             {
                 UserEntity userDBModel = await _userRepo.GetUserByIdAsync(userId);
                 UserDTO usreModel = userDBModel.Adapt<UserDTO>();
+                usreModel.IsAnyUnfulFilledOrder = await _orderService.HasUnfulfilledOrdersAsync(usreModel.Id);
+
                 return usreModel;
             }
             catch (Exception ex)
@@ -61,6 +70,10 @@ namespace OrderProcessingSystemApplication.UserService
             {
                 List<UserEntity> userDBModels = await _userRepo.GetAllUsersAsync();
                 List<UserDTO> users = userDBModels.Adapt<List<UserDTO>>();
+                foreach (var usreModel in users)
+                {
+                    usreModel.IsAnyUnfulFilledOrder = await _orderService.HasUnfulfilledOrdersAsync(usreModel.Id);
+                }
                 return users;
             }
             catch (Exception ex)
@@ -79,7 +92,7 @@ namespace OrderProcessingSystemApplication.UserService
             try
             {
                 UserEntity user = userModel.Adapt<UserEntity>();
-                bool isAdded = await _userRepo.AddUserAsync( user, password);
+                bool isAdded = await _userRepo.AddUserAsync(user, password);
                 return isAdded;
             }
             catch (Exception ex)
@@ -135,6 +148,7 @@ namespace OrderProcessingSystemApplication.UserService
             {
                 UserEntity customerDBModel = await _userRepo.GetCustomerByIdAsync(userId);
                 UserDTO customerModel = customerDBModel.Adapt<UserDTO>();
+                customerModel.IsAnyUnfulFilledOrder = await _orderService.HasUnfulfilledOrdersAsync(customerModel.Id);
                 return customerModel;
             }
             catch (Exception ex)
@@ -153,6 +167,11 @@ namespace OrderProcessingSystemApplication.UserService
             {
                 List<UserEntity> customerDBModels = await _userRepo.GetAllCustomersAsync();
                 List<UserDTO> customers = customerDBModels.Adapt<List<UserDTO>>();
+                foreach (var customerModel in customers)
+                {
+                    customerModel.IsAnyUnfulFilledOrder = await _orderService.HasUnfulfilledOrdersAsync(customerModel.Id);
+                }
+
                 return customers;
             }
             catch (Exception ex)
@@ -164,6 +183,6 @@ namespace OrderProcessingSystemApplication.UserService
                 return new();
             }
         }
-       
+
     }
 }

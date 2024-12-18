@@ -11,5 +11,6 @@ namespace OrderProcessingSystemApplication.OrderService
         Task<bool> UpdateOrderAsync(OrderDTO order);
         Task<bool> DeleteOrderAsync(int orderId);
         Task<bool> HasUnfulfilledOrdersAsync(int customerId);
+        Task<List<OrderDTO>> GetOrdersByCustomerIdAsync(int customerId);
     }
 }

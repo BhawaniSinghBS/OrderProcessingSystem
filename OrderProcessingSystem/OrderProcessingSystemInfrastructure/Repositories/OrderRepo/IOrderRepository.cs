@@ -38,5 +38,11 @@ namespace OrderProcessingSystemInfrastructure.Repositories.OrderRepo
         /// </summary>
         /// <param name="customerId">The ID of the customer.</param>
         Task<bool> HasUnfulfilledOrdersAsync(int customerId);
+        /// <summary>
+        /// get orders by customer (userid)
+        /// </summary>
+        /// <param name="customerId"></param>
+        /// <returns></returns>
+        Task<List<OrderEntity>> GetOrdersByCustomerIdAsync(int customerId);
     }
 }

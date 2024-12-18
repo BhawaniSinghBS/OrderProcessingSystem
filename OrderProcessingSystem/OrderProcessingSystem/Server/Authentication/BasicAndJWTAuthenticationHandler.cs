@@ -8,6 +8,7 @@ using OrderProcessingSystem.Shared.AppSettingKeys;
 using static OrderProcessingSystem.Server.Authentication.AuthEnums;
 using OrderProcessingSystemApplication.UserService;
 using OrderProcessingSystem.Shared.Models.DTOs;
+using System.Linq;
 
 namespace OrderProcessingSystem.Server.Authentication
 {
@@ -33,7 +34,7 @@ namespace OrderProcessingSystem.Server.Authentication
                 {
                     // contains token header ,validate token if invalid token check for basic auth if both failed return unAuthorised
                     string jwtToken = Request.Headers[HttpHeadersKeys.TokenKey.ToLower()].ToString().Replace(AuthEnums.AuthenticationSchemes.Bearer.ToString(), string.Empty).Replace(AuthEnums.AuthenticationSchemes.Basic.ToString(), string.Empty).Trim() ?? string.Empty;
-                    if (AuthenticateJWTTokenAndCreateUser(jwtToken, out AuthenticationTicket authenticationTicket,isAddTokenToResponse:false))
+                    if (AuthenticateJWTTokenAndCreateUser(jwtToken, out AuthenticationTicket authenticationTicket, isAddTokenToResponse: false))
                     {
                         return AuthenticateResult.Success(authenticationTicket);
                     }
@@ -76,8 +77,8 @@ namespace OrderProcessingSystem.Server.Authentication
                     List<Claim> claims = AuthenticationHelper.GenerateClaims(
                         userId: user.Id.ToString(),
                         username: user.UserName,
-                        roles: new List<string>() { AuthEnums.UserRole.User.ToString() },
-                        permissions: new Dictionary<string, bool>() { { UserPermissions.IsAllowedToAccesServie.ToString(), true } },
+                        roles: user.Roles,
+                        permissions:user.Claims?.ToDictionary(x => x.Type, x => true) ?? new(),
                         otherClaims: new Dictionary<string, string>() { { AllClaimTypes.Email, email } }
                         );
 

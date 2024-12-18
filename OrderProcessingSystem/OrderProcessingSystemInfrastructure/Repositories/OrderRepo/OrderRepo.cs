@@ -45,7 +45,7 @@ namespace OrderProcessingSystemApplication.OrderService
                     .Include(o => o.Customer)
                     .Include(o => o.OrderProducts)
                         .ThenInclude(op => op.Product)
-                    .FirstOrDefaultAsync(o => o.Id == orderId)??new();
+                    .FirstOrDefaultAsync(o => o.Id == orderId) ?? new();
             }
             catch (Exception ex)
             {
@@ -70,7 +70,7 @@ namespace OrderProcessingSystemApplication.OrderService
                 string methodName = MethodBase.GetCurrentMethod()?.Name ?? $"{TextMessages.UnknownMethodText}";
                 string exLocationAndMessage = $"{TextMessages.ClassNameText} : {className}  -- {TextMessages.FunctionNameText} : {methodName} ---- {ex.Message} ------";
                 Log.Error(ex, exLocationAndMessage);
-                 return false;
+                return false;
             }
         }
 
@@ -146,5 +146,27 @@ namespace OrderProcessingSystemApplication.OrderService
                 return false;
             }
         }
+
+        public async Task<List<OrderEntity>> GetOrdersByCustomerIdAsync(int customerId)
+        {
+            try
+            {
+                return await _dbContext.Orders
+                    .Where(o => o.CustomerId == customerId)
+                    .Include(o => o.Customer)
+                    .Include(o => o.OrderProducts)
+                        .ThenInclude(op => op.Product)
+                    .ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                string className = MethodBase.GetCurrentMethod()?.DeclaringType?.Name ?? $"{TextMessages.UnknownClassText}";
+                string methodName = MethodBase.GetCurrentMethod()?.Name ?? $"{TextMessages.UnknownMethodText}";
+                string exLocationAndMessage = $"{TextMessages.ClassNameText} : {className}  -- {TextMessages.FunctionNameText} : {methodName} ---- {ex.Message} ------";
+                Log.Error(ex, exLocationAndMessage);
+                return new List<OrderEntity>();
+            }
+        }
+
     }
 }

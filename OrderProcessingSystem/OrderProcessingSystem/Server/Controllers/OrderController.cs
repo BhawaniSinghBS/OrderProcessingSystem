@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OrderProcessingSystem.Shared.Constants;
 using OrderProcessingSystem.Shared.Models.DTOs;
@@ -18,7 +17,28 @@ namespace OrderProcessingSystem.Server.Controllers
         {
             _orderService = orderService;
         }
-
+        //get orders for a customer
+        [HttpGet(ApiEndPoints.GetOrdersByCustomerId)]
+        public async Task<IActionResult> GetOrdersByCustomerId(int customerId)
+        {
+            try
+            {
+                var orders = await _orderService.GetOrdersByCustomerIdAsync(customerId);
+                if (orders == null || !orders.Any())
+                {
+                    return NotFound($"No orders found for customer ID {customerId}.");
+                }
+                return Ok(orders);
+            }
+            catch (Exception ex)
+            {
+                string className = MethodBase.GetCurrentMethod()?.DeclaringType?.Name ?? $"{TextMessages.UnknownClassText}";
+                string methodName = MethodBase.GetCurrentMethod()?.Name ?? $"{TextMessages.UnknownMethodText}";
+                string exLocationAndMessage = $"{TextMessages.ClassNameText} : {className}  -- {TextMessages.FunctionNameText} : {methodName} ---- {ex.Message} ------";
+                Log.Error(ex, exLocationAndMessage);
+                return StatusCode(500, $"{TextMessages.InternalServerErrorText}{ex.Message}");
+            }
+        }
         // Get All Orders
         [HttpGet(ApiEndPoints.GetAllOrders)]
         public async Task<IActionResult> GetAllOrders()

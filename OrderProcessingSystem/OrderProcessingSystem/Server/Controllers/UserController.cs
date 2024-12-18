@@ -32,7 +32,7 @@ namespace OrderProcessingSystem.Server.Controllers
                     return BadRequest("Failed to authenticate user,Invalid parameters");
                 }
                 UserDTO user = await _userService.AuthenticateUserAsync(login.Email, login.Password);
-                user.IsAnyUnfulFilledOrder = await _orderService.HasUnfulfilledOrdersAsync(user.Id);
+                
                 if (user == null) return Unauthorized("Invalid credentials");
                 return Ok(user);
             }
@@ -52,9 +52,10 @@ namespace OrderProcessingSystem.Server.Controllers
         {
             try
             {
-                var result = await _userService.GetUserByIdAsync(id);
-                if (result == null) return NotFound($"User with ID {id} not found.");
-                return Ok(result);
+                var user = await _userService.GetUserByIdAsync(id);
+                
+                if (user == null) return NotFound($"User with ID {id} not found.");
+                return Ok(user);
             }
             catch (Exception ex)
             {
@@ -72,8 +73,9 @@ namespace OrderProcessingSystem.Server.Controllers
         {
             try
             {
-                var result = await _userService.GetAllUsersAsync();
-                return Ok(result);
+                var users = await _userService.GetAllUsersAsync();
+                
+                return Ok(users);
             }
             catch (Exception ex)
             {
