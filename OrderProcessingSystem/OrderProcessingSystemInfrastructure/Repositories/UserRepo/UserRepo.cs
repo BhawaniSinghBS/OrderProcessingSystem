@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using OrderProcessingSystem.Shared.Constants;
 using OrderProcessingSystemInfrastructure.DataBase;
 using OrderProcessingSystemInfrastructure.DataBase.Entities;
+using OrderProcessingSystemInfrastructure.Repositories.UserRepo;
 using Serilog;
 using System.Collections.Generic;
 using System.Data;

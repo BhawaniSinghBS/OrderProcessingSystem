@@ -30,7 +30,9 @@ namespace OrderProcessingSystem.Client.Pages
             {
                 if (UserContext.User.Id>0)
                 {
-                    orders = await _Http.GetFromJsonAsync<List<OrderDTO>>(string.Format(ApiEndPoints.GetOrdersByCustomerId, UserContext.User.Id)) ?? new();
+                    string customerId = UserContext.User.Id.ToString();
+                    string url = ApiEndPoints.GetOrdersByCustomerId.Replace("{customerId}", customerId);
+                    orders = await _Http.GetFromJsonAsync<List<OrderDTO>>(url) ?? new();
                 }
             }
             catch (Exception ex)

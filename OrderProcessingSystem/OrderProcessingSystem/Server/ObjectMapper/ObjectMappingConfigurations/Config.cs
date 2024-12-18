@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using OrderProcessingSystem.Shared.Models;
 using OrderProcessingSystem.Shared.Models.DTOs;
 using OrderProcessingSystemInfrastructure.DataBase.Entities;
+using OrderProcessingSystemInfrastructure.Repositories.UserRepo;
 using System.Security.Claims;
 
 namespace OrderProcessingSystem.Server.ObjectMapper.ObjectMappingConfigurations

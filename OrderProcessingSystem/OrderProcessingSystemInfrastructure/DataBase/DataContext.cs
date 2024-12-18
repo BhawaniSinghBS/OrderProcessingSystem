@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using OrderProcessingSystem.Shared.Constants;
 using OrderProcessingSystemInfrastructure.DataBase.Entities;
+using OrderProcessingSystemInfrastructure.Repositories.UserRepo;
 
 
 namespace OrderProcessingSystemInfrastructure.DataBase
@@ -37,7 +38,12 @@ namespace OrderProcessingSystemInfrastructure.DataBase
                 .WithMany(r => r.UserRoles)
                 .HasForeignKey(ur => ur.RoleId);
 
-            modelBuilder.Entity<OrderEntity>().HasKey(o => o.Id);
+            modelBuilder.Entity<OrderEntity>()
+                .HasKey(o => o.Id); 
+
+            modelBuilder.Entity<OrderEntity>()
+                .Property(o => o.Id)
+                .ValueGeneratedOnAdd();
             // Configure OrderEntity and UserEntity relationship
             modelBuilder.Entity<UserEntity>()
                  .HasMany(u => u.UserClaims)
@@ -70,7 +76,7 @@ namespace OrderProcessingSystemInfrastructure.DataBase
                 .HasMany(u => u.Orders) // User has many Orders
                 .WithOne(o => o.Customer) // Order has one Customer
                 .HasForeignKey(o => o.CustomerId); // Foreign key is CustomerId
-
+            
             // Seeding data
             DataSedding(modelBuilder);
         }

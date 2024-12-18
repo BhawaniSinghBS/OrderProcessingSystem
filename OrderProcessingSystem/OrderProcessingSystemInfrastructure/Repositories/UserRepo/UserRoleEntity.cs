@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using OrderProcessingSystemInfrastructure.DataBase.Entities;
 
-namespace OrderProcessingSystemInfrastructure.DataBase.Entities
+namespace OrderProcessingSystemInfrastructure.Repositories.UserRepo
 {
     public class UserRoleEntity : IdentityUserRole<int>
     {

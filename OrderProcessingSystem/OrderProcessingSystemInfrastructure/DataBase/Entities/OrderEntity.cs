@@ -1,4 +1,6 @@
-﻿namespace OrderProcessingSystemInfrastructure.DataBase.Entities
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace OrderProcessingSystemInfrastructure.DataBase.Entities
 {
     public class OrderEntity
     {
@@ -10,7 +12,7 @@
         public virtual UserEntity Customer { get; set; }
         public virtual ICollection<OrderProductEntity> OrderProducts { get; set; } = new List<OrderProductEntity>();
 
-        // Calculated Total Price
+        [NotMapped]
         public decimal TotalPrice => OrderProducts.Sum(op => op.TotalPrice);
     }
 }

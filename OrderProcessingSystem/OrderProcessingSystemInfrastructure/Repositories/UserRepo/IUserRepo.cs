@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using OrderProcessingSystemInfrastructure.DataBase.Entities;
+using OrderProcessingSystemInfrastructure.Repositories.UserRepo;
 using System.Security.Claims;
 
 namespace OrderProcessingSystemInfrastructure.Repositories.AuthenticateUserRepo

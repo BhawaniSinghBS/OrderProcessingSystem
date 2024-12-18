@@ -18,10 +18,10 @@ namespace OrderProcessingSystemInfrastructure
         {
             try
             {
-                services.AddDbContext<DataBaseContext>(options => 
-                        //options.UseLazyLoadingProxies() 
-                        //.UseSqlServer(connectionStrings));
-                        options.UseSqlServer(connectionStrings));
+                services.AddDbContext<DataBaseContext>(options =>
+                        options.UseLazyLoadingProxies()
+                        .UseSqlServer(connectionStrings));
+                //options.UseSqlServer(connectionStrings));
                 services.AddIdentity<UserEntity, RoleEntity>()
                         .AddEntityFrameworkStores<DataBaseContext>()
                         .AddDefaultTokenProviders();

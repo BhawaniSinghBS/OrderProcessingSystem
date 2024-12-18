@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using OrderProcessingSystemInfrastructure.Repositories.UserRepo;
 
 namespace OrderProcessingSystemInfrastructure.DataBase.Entities
 {
