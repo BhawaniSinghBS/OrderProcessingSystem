@@ -4,6 +4,7 @@ namespace OrderProcessingSystem.Server.Authentication
 {
     public static class RegisterAuthentication
     {
+        // register below userservice registration
         public static void RegisterBasicAndJWTAuthenticaton(this IServiceCollection services)
         {
             // Basic Authentication for the token endpoint

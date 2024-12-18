@@ -4,7 +4,10 @@ using OrderProcessingSystem.Client.Services;
 using OrderProcessingSystem.Shared.Constants;
 using OrderProcessingSystem.Shared.Http;
 using OrderProcessingSystem.Shared.Models.DTOs;
+using System.Net;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Text;
 
 namespace OrderProcessingSystem.Client.Pages
 {
@@ -37,32 +40,56 @@ namespace OrderProcessingSystem.Client.Pages
         {
             try
             {
-                var response = await _Http.PostAsJsonAsync(ApiEndPoints.AuthenticateUser, LoginModel);
+                // Combine username and password for Basic Authentication
+                var credentials = $"{LoginModel.Email}:{LoginModel.Password}";
+                var base64Credentials = Convert.ToBase64String(Encoding.ASCII.GetBytes(credentials));
+
+                // Create the HTTP request
+                var requestMessage = new HttpRequestMessage(HttpMethod.Post, ApiEndPoints.AuthenticateUser)
+                {
+                    Content = JsonContent.Create(LoginModel)
+                };
+                //requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Basic", base64Credentials);
+
+                // Send the request
+                var response = await _Http.SendAsync(requestMessage);
+
+                // Debugging: Log response status and headers
+                Console.WriteLine($"Response Status: {response.StatusCode}");
+                Console.WriteLine($"Response Headers: {response.Headers}");
 
                 if (response.IsSuccessStatusCode)
                 {
-                    // Read the response content and parse it
-                    var user = await response.Content.ReadFromJsonAsync<UserDTO>();
-                    var token = response.Headers.Contains(HttpHeadersKeys.TokenKey) ? response.Headers.GetValues(HttpHeadersKeys.TokenKey).FirstOrDefault() : string.Empty;
-
-                    if (!string.IsNullOrEmpty(token))
+                    if (response.Content.Headers.ContentType?.MediaType == "application/json")
                     {
-                        // Store token in local storage
-                        await _JSRuntime.InvokeVoidAsync("localStorage.setItem", "authToken", token);
+                        // Deserialize JSON response
+                        var user = await response.Content.ReadFromJsonAsync<UserDTO>();
+                        var token = response.Headers.Contains(HttpHeadersKeys.TokenKey) ? response.Headers.GetValues(HttpHeadersKeys.TokenKey).FirstOrDefault() : string.Empty;
 
-                        // Store user info and update UserContext
-                        await UserContext.SetUser(_JSRuntime, user);
-
-                        // Redirect to home page or dashboard
-                        _Navigation.NavigateTo("/orders");
+                        if (!string.IsNullOrEmpty(token))
+                        {
+                            await _JSRuntime.InvokeVoidAsync("localStorage.setItem", "authToken", token);
+                            await UserContext.SetUser(_JSRuntime, user);
+                            _Navigation.NavigateTo("/orders");
+                        }
+                        else
+                        {
+                            LoginError = "Authentication token missing.";
+                        }
                     }
                     else
                     {
-                        LoginError = "Authentication token missing.";
+                        // Unexpected content type
+                        var responseContent = await response.Content.ReadAsStringAsync();
+                        Console.WriteLine("Unexpected Response Content: " + responseContent);
+                        LoginError = "Unexpected response from the server.";
                     }
                 }
                 else
                 {
+                    // Log the response for failure
+                    var responseContent = await response.Content.ReadAsStringAsync();
+                    Console.WriteLine($"Error Response: {responseContent}");
                     LoginError = "Invalid email or password.";
                 }
             }
@@ -71,6 +98,7 @@ namespace OrderProcessingSystem.Client.Pages
                 LoginError = "An error occurred: " + ex.Message;
             }
         }
+
     }
 }
 

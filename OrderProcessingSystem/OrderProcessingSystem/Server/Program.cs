@@ -64,9 +64,9 @@ namespace OrderProcessingSystem
             }
             // Add services to the container.
             builder.Services.RegisterMapsterMapper();
-            builder.Services.RegisterBasicAndJWTAuthenticaton();
             builder.Services.AddInfrastructureServices(configuration.GetConnectionString("DBConnection")); 
             builder.Services.AddApplicationServices();
+            builder.Services.RegisterBasicAndJWTAuthenticaton();
             builder.Services.AddControllersWithViews();
             builder.Services.AddRazorPages();
             //add swager
@@ -108,6 +108,8 @@ namespace OrderProcessingSystem
 
 
             app.MapRazorPages();
+            app.UseAuthentication();
+            app.UseAuthorization();
             app.MapControllers();
             app.MapFallbackToFile("index.html");
             app.Run();

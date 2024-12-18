@@ -28,7 +28,7 @@ namespace OrderProcessingSystem.Client.Pages
         {
             try
             {
-                if (UserContext.User.IsAuthorised)
+                if (UserContext.User.Id>0)
                 {
                     orders = await _Http.GetFromJsonAsync<List<OrderDTO>>(string.Format(ApiEndPoints.GetOrdersByCustomerId, UserContext.User.Id)) ?? new();
                 }

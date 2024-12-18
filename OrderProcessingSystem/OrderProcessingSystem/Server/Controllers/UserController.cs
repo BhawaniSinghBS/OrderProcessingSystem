@@ -1,24 +1,30 @@
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
+using OrderProcessingSystem.Server.Authentication;
 using OrderProcessingSystem.Shared.Constants;
+using OrderProcessingSystem.Shared.Http;
 using OrderProcessingSystem.Shared.Models.DTOs;
 using OrderProcessingSystemApplication.OrderService;
 using OrderProcessingSystemApplication.UserService;
 using Serilog;
 using System.Reflection;
+using System.Security.Claims;
 
 namespace OrderProcessingSystem.Server.Controllers
 {
-    //[Authorize] //currently diabled
+    //[Authorize]
     [ApiController]
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
         private readonly IOrderService _orderService;
+        private readonly IConfiguration _configuration;
 
-        public UserController(IUserService userService, IOrderService orderService)
+        public UserController(IUserService userService, IOrderService orderService, IConfiguration configuration)
         {
             _userService = userService;
             _orderService = orderService;
+            _configuration = configuration;
         }
 
         // Authenticate User
@@ -27,13 +33,35 @@ namespace OrderProcessingSystem.Server.Controllers
         {
             try
             {
+                UserDTO user = new UserDTO();
+                if (User.Identities.Any(i => i.IsAuthenticated))
+                {
+                    user = await _userService.AuthenticateUserAsync(login.Email, login.Password);
+                    return Ok(user);
+                }
                 if (login == null || string.IsNullOrWhiteSpace(login.Email) || string.IsNullOrWhiteSpace(login.Password))
                 {
                     return BadRequest("Failed to authenticate user,Invalid parameters");
                 }
-                UserDTO user = await _userService.AuthenticateUserAsync(login.Email, login.Password);
-                
+                user = await _userService.AuthenticateUserAsync(login.Email, login.Password);
+
                 if (user == null) return Unauthorized("Invalid credentials");
+
+                // Return the JWT token
+                List<Claim> claims = AuthenticationHelper.GenerateClaims(
+                    userId: user.Id.ToString(),
+                    username: user.UserName,
+                    roles: user.Roles,
+                    permissions: user.Claims?.ToDictionary(x => x.Split(":")[0], x => bool.Parse(x.Split(":")[1])) ?? new(),
+                    otherClaims: new Dictionary<string, string>() { { AllClaimTypes.Email, user.Email } }
+                    );
+
+                // Create JWT token and add to claims to add to identity so that can be aceesed in cntoller User
+                var jwtToken = AuthenticationHelper.GenerateJwtToken(claims, _configuration);
+                if (!AuthenticateJWTTokenAndCreateUser(jwtToken, out AuthenticationTicket authenticationTicket, isAddTokenToResponse: true))
+                {
+                    return Unauthorized("Invalid credentials");
+                }
                 return Ok(user);
             }
             catch (Exception ex)
@@ -53,7 +81,7 @@ namespace OrderProcessingSystem.Server.Controllers
             try
             {
                 var user = await _userService.GetUserByIdAsync(id);
-                
+
                 if (user == null) return NotFound($"User with ID {id} not found.");
                 return Ok(user);
             }
@@ -74,7 +102,7 @@ namespace OrderProcessingSystem.Server.Controllers
             try
             {
                 var users = await _userService.GetAllUsersAsync();
-                
+
                 return Ok(users);
             }
             catch (Exception ex)
@@ -191,6 +219,37 @@ namespace OrderProcessingSystem.Server.Controllers
                 string exLocationAndMessage = $"{TextMessages.ClassNameText} : {className}  -- {TextMessages.FunctionNameText} : {methodName}----{ex.Message}----";
                 Log.Error(ex, exLocationAndMessage);
                 return StatusCode(500, $"{TextMessages.InternalServerErrorText} while fetching all customers.");
+            }
+        }
+        [NonAction]
+        private bool AuthenticateJWTTokenAndCreateUser(string jwtToken, out AuthenticationTicket authenticationTicket, bool isAddTokenToResponse)
+        {
+            authenticationTicket = null;
+            if (!string.IsNullOrEmpty(jwtToken) && AuthenticationHelper.GetClaimsPrincipalFromValidJwt(jwtToken, _configuration, out ClaimsPrincipal claimsPrincipal))
+            {
+                ClaimsIdentity identity = (ClaimsIdentity)claimsPrincipal.Identity;
+                identity.AddClaim(new Claim(AllClaimTypes.TokenKey, jwtToken));
+
+                ClaimsPrincipal principal = new ClaimsPrincipal(identity);
+                authenticationTicket = new AuthenticationTicket(principal, AuthEnums.AuthenticationSchemes.Basic.ToString());
+                if (isAddTokenToResponse)
+                {
+                    if (Response.Headers.ContainsKey(HttpHeadersKeys.TokenKey))
+                    {
+                        // Replace the existing value
+                        Response.Headers[HttpHeadersKeys.TokenKey] = jwtToken;
+                    }
+                    else
+                    {
+                        // Add the header if it does not exist
+                        Response.Headers.Add(HttpHeadersKeys.TokenKey, jwtToken);
+                    }
+                }
+                return true;
+            }
+            else
+            {
+                return false;
             }
         }
     }

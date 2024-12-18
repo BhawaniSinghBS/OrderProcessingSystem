@@ -25,7 +25,8 @@ namespace OrderProcessingSystem.Server.ObjectMapper.ObjectMappingConfigurations
                 .Map(dest => dest.UserName, src => src.UserName)
                 .Map(dest => dest.IsCustomer, src => src.IsCustomer)
                 .Map(dest => dest.PhoneNumber, src => src.PhoneNumber)
-                .Map(dest => dest.Claims, src => src.UserClaims.Select(c => new Claim(c.ClaimType, c.ClaimValue)).ToList())
+                //.Map(dest => dest.Claims, src => src.UserClaims.Select(c => new Claim(c.ClaimType, c.ClaimValue)).ToList())
+                .Map(dest => dest.Claims, src => src.UserClaims.Select(c => $"{c.ClaimType}:{c.ClaimValue}").ToList())
                 .Map(dest => dest.Roles, src => src.UserRoles
                                                    .Select(ur => ur.Role.Name).ToList());
             TypeAdapterConfig<UserDTO, UserEntity>.NewConfig()
@@ -36,8 +37,8 @@ namespace OrderProcessingSystem.Server.ObjectMapper.ObjectMappingConfigurations
                 .Map(dest => dest.PhoneNumber, src => src.PhoneNumber.ToString())
                 .Map(dest => dest.UserClaims, src => src.Claims.Select(c => new IdentityUserClaim<int>
                 {
-                    ClaimType = c.Type,
-                    ClaimValue = c.Value,
+                    ClaimType = c.Split(':', StringSplitOptions.None)[0],
+                    ClaimValue = c.Split(':', StringSplitOptions.None)[1],
                     UserId = src.Id // Assuming the UserId is needed
                 }))
                 .Map(dest => dest.UserRoles, src => src.Roles.Select(role => new UserRoleEntity

@@ -27,12 +27,17 @@ namespace OrderProcessingSystemInfrastructure.Repositories.AuthenticateUserRepo
         {
             try
             {
-                var user = await _context.Users
-                                        .Include(u => u.UserRoles)
-                                            .ThenInclude(ur => ur.Role)
-                                        .Include(u => u.UserClaims)
-                                        .FirstOrDefaultAsync();
-                return user??new();
+                var user = await _userManager.FindByEmailAsync(email);
+                if (user != null && await _userManager.CheckPasswordAsync(user, password))
+                {
+                    user = await _context.Users
+                                            .Where(w => w.Id==user.Id)
+                                            .Include(u => u.UserRoles)
+                                                .ThenInclude(ur => ur.Role)
+                                            .Include(u => u.UserClaims)
+                                            .FirstOrDefaultAsync();
+                }
+                return user ?? new();
             }
             catch (Exception ex)
             {
@@ -55,7 +60,7 @@ namespace OrderProcessingSystemInfrastructure.Repositories.AuthenticateUserRepo
                              .ThenInclude(ur => ur.Role)
                          .Include(u => u.UserClaims)
                          .FirstOrDefaultAsync();
-                return user??new();
+                return user ?? new();
             }
             catch (Exception ex)
             {
@@ -72,7 +77,7 @@ namespace OrderProcessingSystemInfrastructure.Repositories.AuthenticateUserRepo
         {
             try
             {
-               // var users = await _context.Set<UserEntity>().ToListAsync();
+                // var users = await _context.Set<UserEntity>().ToListAsync();
                 var users = await _context.Users
                         .Include(u => u.UserRoles)
                             .ThenInclude(ur => ur.Role)
@@ -208,7 +213,7 @@ namespace OrderProcessingSystemInfrastructure.Repositories.AuthenticateUserRepo
                                         .Where(u => u.Id == userId && u.IsCustomer)
                                         .Include(u => u.UserRoles)
                                             .ThenInclude(ur => ur.Role)
-                                        .Include(u => u.UserClaims) 
+                                        .Include(u => u.UserClaims)
                                         .FirstOrDefaultAsync();
 
                 return user ?? new();
@@ -237,7 +242,7 @@ namespace OrderProcessingSystemInfrastructure.Repositories.AuthenticateUserRepo
                       .Include(u => u.UserRoles)
                           .ThenInclude(ur => ur.Role)
                       .Include(u => u.UserClaims)
-                      .ToListAsync(); 
+                      .ToListAsync();
                 return users ?? new();
             }
             catch (Exception ex)
@@ -246,14 +251,14 @@ namespace OrderProcessingSystemInfrastructure.Repositories.AuthenticateUserRepo
                 string methodName = MethodBase.GetCurrentMethod()?.Name ?? $"{TextMessages.UnknownMethodText}";
                 string exLocationAndMessage = $"{TextMessages.ClassNameText} : {className}  -- {TextMessages.FunctionNameText} : {methodName} ---- {ex.Message} ------";
                 Log.Error(ex, exLocationAndMessage);
-                return new ();
+                return new();
             }
         }
         public async Task<bool> AddRolesAsync(UserEntity user, IEnumerable<UserRoleEntity> roles)
         {
             foreach (var role in roles)
             {
-                var roleResult = await _userManager.AddToRoleAsync(user, role.Role.Name??"");
+                var roleResult = await _userManager.AddToRoleAsync(user, role.Role.Name ?? "");
                 if (!roleResult.Succeeded)
                 {
                     Log.Error("Failed to add role {Role} to user {UserName}. Errors: {@Errors}",
@@ -267,7 +272,7 @@ namespace OrderProcessingSystemInfrastructure.Repositories.AuthenticateUserRepo
         {
             foreach (var claim in claims)
             {
-                var claimResult = await _userManager.AddClaimAsync(user, new Claim(claim.ClaimType,claim.ClaimValue));
+                var claimResult = await _userManager.AddClaimAsync(user, new Claim(claim.ClaimType, claim.ClaimValue));
                 if (!claimResult.Succeeded)
                 {
                     Log.Error("Failed to add claim {ClaimType} to user {UserName}. Errors: {@Errors}",

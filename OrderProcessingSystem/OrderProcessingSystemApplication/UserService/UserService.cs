@@ -26,7 +26,6 @@ namespace OrderProcessingSystemApplication.UserService
         {
             try
             {
-                password = null;
                 UserEntity userDBModel = await _userRepo.AuthenticateUserAsync(email, password);
                 UserDTO usreModel = userDBModel.Adapt<UserDTO>();
                 usreModel.IsAnyUnfulFilledOrder = await _orderService.HasUnfulfilledOrdersAsync(usreModel.Id);

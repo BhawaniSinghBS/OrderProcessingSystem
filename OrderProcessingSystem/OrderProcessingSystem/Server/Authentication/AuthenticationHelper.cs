@@ -110,7 +110,7 @@ namespace OrderProcessingSystem.Server.Authentication
             {
                 string jwtSecurityKey = configuration[AppsettingsKeys.JWTSectionName + ":" + AppsettingsKeys.JWTSecretKeyKey];
                 string jwtAudienceKey = configuration[AppsettingsKeys.JWTSectionName + ":" + AppsettingsKeys.JWTAudienceKey];
-                string authTokenExpiryInSeconds = configuration[AppsettingsKeys.AuthTokenExpiryInSeconds];
+                string authTokenExpiryInSeconds = configuration[AppsettingsKeys.JWTSectionName + ":" + AppsettingsKeys.AuthTokenExpiryInSeconds];
 
                 var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecurityKey));
                 var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -177,5 +177,6 @@ namespace OrderProcessingSystem.Server.Authentication
             }
             return isValidToken;
         }
+       
     }
 }
