@@ -13,3 +13,4 @@
 8) To run on docker change to Conatiner(DockerFile) from the debug button on top of VS IDE (Docker Desktop is required to be insatalled before running on container with enabled WASM support)
 9) FrontEnd is in progress for product,custormer, order page for the website frontend which communicates to backed through api
 9) Xunit is in progress for backend testing and Nunit will also be added for sleninum test .
+

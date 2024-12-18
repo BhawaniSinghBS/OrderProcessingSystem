@@ -5,6 +5,7 @@ using OrderProcessingSystemInfrastructure.DataBase;
 using OrderProcessingSystemInfrastructure.DataBase.Entities;
 using Serilog;
 using System.Reflection;
+using System.Security.Claims;
 
 namespace OrderProcessingSystemInfrastructure.Repositories.AuthenticateUserRepo
 {
@@ -27,6 +28,8 @@ namespace OrderProcessingSystemInfrastructure.Repositories.AuthenticateUserRepo
                 var user = await _userManager.FindByEmailAsync(email);
                 if (user != null && await _userManager.CheckPasswordAsync(user, password))
                 {
+                    user.Claims = await _userManager.GetClaimsAsync(user);
+                    user.Roles = await _userManager.GetRolesAsync(user);
                     return user;
                 }
                 return null; // Authentication failed
@@ -46,7 +49,14 @@ namespace OrderProcessingSystemInfrastructure.Repositories.AuthenticateUserRepo
         {
             try
             {
-                return await _userManager.FindByIdAsync(userId.ToString());
+                var user = await _userManager.FindByIdAsync(userId.ToString());
+                if (user != null)
+                {
+                    user.Claims = await _userManager.GetClaimsAsync(user);
+                    user.Roles = await _userManager.GetRolesAsync(user);
+                    return user;
+                }
+                return null;
             }
             catch (Exception ex)
             {
@@ -63,8 +73,16 @@ namespace OrderProcessingSystemInfrastructure.Repositories.AuthenticateUserRepo
         {
             try
             {
-                // Ensure we retrieve all users of type "User" (derived from IdentityUser)
-                return await _context.Set<UserEntity>().ToListAsync();
+                var users = await _context.Set<UserEntity>().ToListAsync();
+                if (users != null && users.Count() > 0)
+                {
+                    foreach (var user in users)
+                    {
+                        user.Claims = await _userManager.GetClaimsAsync(user);
+                        user.Roles = await _userManager.GetRolesAsync(user);
+                    }
+                }
+                return null;
             }
             catch (Exception ex)
             {
@@ -72,7 +90,7 @@ namespace OrderProcessingSystemInfrastructure.Repositories.AuthenticateUserRepo
                 string methodName = MethodBase.GetCurrentMethod()?.Name ?? $"{TextMessages.UnknownMethodText}";
                 string exLocationAndMessage = $"{TextMessages.ClassNameText} : {className}  -- {TextMessages.FunctionNameText} : {methodName}----{ex.Message}------";
                 Log.Error(ex, exLocationAndMessage);
-                return new ();
+                return new();
             }
         }
 
@@ -92,6 +110,44 @@ namespace OrderProcessingSystemInfrastructure.Repositories.AuthenticateUserRepo
                 string exLocationAndMessage = $"{TextMessages.ClassNameText} : {className}  -- {TextMessages.FunctionNameText} : {methodName}----{ex.Message}------";
                 Log.Error(ex, exLocationAndMessage);
                 return new();
+            }
+        }
+        //add user with claims and roles
+        public async Task<bool> AddUserAsync(UserEntity user, string password, List<Claim> claims, List<string> roles)
+        {
+            try
+            {
+                // Create the user
+                var result = await _userManager.CreateAsync(user, password);
+                if (!result.Succeeded)
+                {
+                    Log.Error("Failed to create user. Errors: {@Errors}", result.Errors);
+                    return false;
+                }
+
+                // Add claims
+                if (!await AddClaimsAsync(user, claims))
+                {
+                    Log.Error("Failed to add claims for user {UserName}.", user.UserName);
+                    return false;
+                }
+
+                // Add roles
+                if (!await AddRolesAsync(user, roles))
+                {
+                    Log.Error("Failed to add roles for user {UserName}.", user.UserName);
+                    return false;
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                string className = MethodBase.GetCurrentMethod()?.DeclaringType?.Name ?? $"{TextMessages.UnknownClassText}";
+                string methodName = MethodBase.GetCurrentMethod()?.Name ?? $"{TextMessages.UnknownMethodText}";
+                string exLocationAndMessage = $"{TextMessages.ClassNameText} : {className}  -- {TextMessages.FunctionNameText} : {methodName}----{ex.Message}------";
+                Log.Error(ex, exLocationAndMessage);
+                return false;
             }
         }
 
@@ -187,6 +243,37 @@ namespace OrderProcessingSystemInfrastructure.Repositories.AuthenticateUserRepo
                 return new List<UserEntity>();
             }
         }
+        private async Task<bool> AddClaimsAsync(UserEntity user, List<Claim> claims)
+        {
+            foreach (var claim in claims)
+            {
+                var claimResult = await _userManager.AddClaimAsync(user, claim);
+                if (!claimResult.Succeeded)
+                {
+                    Log.Error("Failed to add claim {ClaimType} to user {UserName}. Errors: {@Errors}",
+                               claim.Type, user.UserName, claimResult.Errors);
+                    return false;
+                }
+            }
+
+            return true;
+        }
+        private async Task<bool> AddRolesAsync(UserEntity user, List<string> roles)
+        {
+            foreach (var role in roles)
+            {
+                var roleResult = await _userManager.AddToRoleAsync(user, role);
+                if (!roleResult.Succeeded)
+                {
+                    Log.Error("Failed to add role {Role} to user {UserName}. Errors: {@Errors}",
+                               role, user.UserName, roleResult.Errors);
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
 
     }
 }

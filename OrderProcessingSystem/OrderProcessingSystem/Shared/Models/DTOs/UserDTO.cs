@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Security.Claims;
 
 namespace OrderProcessingSystem.Shared.Models.DTOs
 {
@@ -12,5 +13,7 @@ namespace OrderProcessingSystem.Shared.Models.DTOs
         public bool IsCustomer { get; set; } = true; // false if Admin
         public long PhoneNumber { get; set; }
         public bool IsAnyUnfulFilledOrder { get; set; } = true;//can not place another order if it is true 
+        public List<Claim> Claims { get; set; } = new ();//optional
+        public List<string> Roles { get; set; } = new ();//optional
     }
 }

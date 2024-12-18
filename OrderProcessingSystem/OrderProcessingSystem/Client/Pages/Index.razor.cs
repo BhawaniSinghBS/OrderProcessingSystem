@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+using OrderProcessingSystem.Client.Services;
 using OrderProcessingSystem.Shared.Constants;
+using OrderProcessingSystem.Shared.Http;
 using OrderProcessingSystem.Shared.Models.DTOs;
 using System.Net.Http.Json;
 
@@ -35,13 +37,29 @@ namespace OrderProcessingSystem.Client.Pages
         {
             try
             {
-                // Simulate an HTTP login call. Replace with real logic.  
-                bool loginSuccessful = LoginModel.Email == "test@example.com" && LoginModel.Password == "password";
+                var response = await _Http.PostAsJsonAsync(ApiEndPoints.AuthenticateUser, LoginModel);
 
-                if (loginSuccessful)
+                if (response.IsSuccessStatusCode)
                 {
-                    LoginError = "";
-                    Console.WriteLine("Login Successful");
+                    // Read the response content and parse it
+                    var user = await response.Content.ReadFromJsonAsync<UserDTO>();
+                    var token = response.Headers.Contains(HttpHeadersKeys.TokenKey) ? response.Headers.GetValues(HttpHeadersKeys.TokenKey).FirstOrDefault() : string.Empty;
+
+                    if (!string.IsNullOrEmpty(token))
+                    {
+                        // Store token in local storage
+                        await _JSRuntime.InvokeVoidAsync("localStorage.setItem", "authToken", token);
+
+                        // Store user info and update UserContext
+                        await UserContext.SetUser(_JSRuntime, user);
+
+                        // Redirect to home page or dashboard
+                        _Navigation.NavigateTo("/orders");
+                    }
+                    else
+                    {
+                        LoginError = "Authentication token missing.";
+                    }
                 }
                 else
                 {
@@ -55,4 +73,5 @@ namespace OrderProcessingSystem.Client.Pages
         }
     }
 }
+
 

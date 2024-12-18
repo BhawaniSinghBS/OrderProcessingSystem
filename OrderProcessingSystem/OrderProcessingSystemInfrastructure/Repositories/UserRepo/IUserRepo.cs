@@ -1,4 +1,5 @@
 ﻿using OrderProcessingSystemInfrastructure.DataBase.Entities;
+using System.Security.Claims;
 
 namespace OrderProcessingSystemInfrastructure.Repositories.AuthenticateUserRepo
 {
@@ -12,5 +13,8 @@ namespace OrderProcessingSystemInfrastructure.Repositories.AuthenticateUserRepo
         Task<bool> DeleteUserAsync(int userId);
         Task<UserEntity> GetCustomerByIdAsync(int userId);
         Task<List<UserEntity>> GetAllCustomersAsync();
+        Task<bool> AddRolesAsync(UserEntity user, List<string> roles);
+        Task<bool> AddClaimsAsync(UserEntity user, List<Claim> claims);
+        Task<bool> AddUserAsync(UserEntity user, string password, List<Claim> claims, List<string> roles);
     }
 }
