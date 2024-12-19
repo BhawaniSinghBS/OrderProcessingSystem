@@ -55,7 +55,7 @@ namespace OrderProcessingSystemInfrastructure.DataBase
                 .HasOne(o => o.Customer) // Order has one Customer
                 .WithMany(u => u.Orders) // Customer has many Orders
                 .HasForeignKey(o => o.CustomerId) // Foreign key is CustomerId
-                .OnDelete(DeleteBehavior.Cascade); // Optional: Define delete behavior
+                .OnDelete(DeleteBehavior.Cascade); // Define delete behavior
 
             modelBuilder.Entity<ProductEntity>().HasKey(p => p.Id);
             modelBuilder.Entity<OrderProductEntity>()
