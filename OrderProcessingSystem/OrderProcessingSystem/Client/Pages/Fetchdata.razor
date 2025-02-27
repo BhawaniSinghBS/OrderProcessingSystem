@@ -1,0 +1,82 @@
+﻿@page "/orders"
+@using OrderProcessingSystem.Shared
+@using OrderProcessingSystem.Shared.Models.DTOs
+
+<PageTitle>Orders</PageTitle>
+
+<h1>Orders</h1>
+
+@if (orders == null)
+{
+    <p><em>Loading orders...</em></p>
+}
+else if (!string.IsNullOrEmpty(errorMessage))
+{
+    <p class="text-danger">@errorMessage</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Order ID</th>
+                <th>Customer ID</th>
+                <th>Is Fulfilled</th>
+                <th>Products</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var order in orders)
+            {
+                <tr>
+                    <td>@order.Id</td>
+                    <td>@order.CustomerId</td>
+                    <td>@(order.IsFulfilled ? "Yes" : "No")</td>
+                    <td>
+                        <ul>
+                            @foreach (var product in order.OrderProducts)
+                            {
+                                <li>Product ID: @product.ProductId, Quantity: @product.Quantity, Price: @product.Price, Total: @product.TotalPrice</li>
+                            }
+                        </ul>
+                    </td>
+                    <td>
+                        <button class="btn btn-primary btn-sm" @onclick="() => EditOrder(order)">Edit</button>
+                        <button class="btn btn-danger btn-sm" @onclick="() => DeleteOrder(order.Id)">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<h2>@(isEditing ? "Edit Order" : "Add Order")</h2>
+<EditForm Model="currentOrder" OnValidSubmit="SaveOrder">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div>
+        <label>Customer ID:</label>
+        <InputNumber @bind-Value="currentOrder.CustomerId" class="form-control" />
+    </div>
+    <div>
+        <label>Is Fulfilled:</label>
+        <InputCheckbox @bind-Value="currentOrder.IsFulfilled" />
+    </div>
+    <div>
+        <label>Order Products:</label>
+        <ul>
+            @foreach (var product in currentOrder.OrderProducts)
+            {
+                <li>
+                    Product ID: <InputNumber @bind-Value="product.ProductId" />
+                    Quantity: <InputNumber @bind-Value="product.Quantity" />
+                    Price: <InputNumber @bind-Value="product.Price" />
+                </li>
+            }
+        </ul>
+        <button type="button" class="btn btn-secondary" @onclick="AddProduct">Add Product</button>
+    </div>
+    <button type="submit" class="btn btn-success">Save</button>
+</EditForm>
+
