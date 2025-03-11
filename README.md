@@ -16,7 +16,7 @@
 9) FrontEnd is in progress for product,custormer, order page for the website frontend which communicates to backed through api
 9) Xunit is in progress for backend testing and Nunit will also be added for sleninum test .
 
-
+// sheduled testing
 @echo off
 cd /d "D:\Development\OrderProcessingSystem\OrderProcessingSystem\OrderProcessingSystemBackEndTesting\bin\Release\net6.0\publish"
 dotnet test OrderProcessingSystemBackEndTesting.dll
